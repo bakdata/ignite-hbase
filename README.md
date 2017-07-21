@@ -1,5 +1,7 @@
 # ignite-hbase
 
+[![Build Status](https://travis-ci.org/bakdata/ignite-hbase.svg?branch=master)](https://travis-ci.org/bakdata/ignite-hbase)
+
 This [Apache Ignite](https://ignite.apache.org/) plugin adds support for using [Apache HBase](https://hbase.apache.org/) as [persistent store](https://apacheignite.readme.io/docs/persistent-store).
 It allows for using Ignite Data Grid as a high-perfromance key-value store with the benefit of persisting your data in HBase without sacrificing any performance. 
 
