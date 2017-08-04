@@ -24,7 +24,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <!-- Travis build workaround -->
-          <argLine>-Xms1g -Xmx4g</argLine>
+          <argLine>${argLine} -Xms1g -Xmx4g</argLine>
         </configuration>
       </plugin>
       <plugin>

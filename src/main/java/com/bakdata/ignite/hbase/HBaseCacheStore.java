@@ -129,6 +129,9 @@ public class HBaseCacheStore<K, V> implements CacheStore<K, V>, Serializable {
   }
 
 
+  /**
+   * {@inheritDoc}
+   */
   @Deprecated
   @Override
   public void sessionEnd(boolean commit) {
