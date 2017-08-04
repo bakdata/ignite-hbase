@@ -4,9 +4,7 @@ addons:
   sonarcloud:
     organization: bakdata
     token: $SONAR_TOKEN
-    branches:
-      - master
-      - dev
+
 jdk:
 - oraclejdk8
 
