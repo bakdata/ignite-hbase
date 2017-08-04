@@ -4,12 +4,16 @@ addons:
   sonarcloud:
     organization: bakdata
     token: $SONAR_TOKEN
+    branches:
+      - master
+      - dev
 
 jdk:
 - oraclejdk8
 
 script:
-- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+- sonar-scanner
 
 cache:
   directories:
