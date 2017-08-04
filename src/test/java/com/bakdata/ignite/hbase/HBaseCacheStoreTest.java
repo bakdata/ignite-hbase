@@ -53,7 +53,8 @@ public class HBaseCacheStoreTest {
   private static final int TEST_DIRECTORY_MAX_LENGTH = 65;
   private static final String TEST_DIRECTORY_INVALID_MESSAGE =
       "HBase test directory name too long. Max. " + TEST_DIRECTORY_MAX_LENGTH
-          + " characters allowed. Please set an appropriate directory using the system property test.build.data.basedirectory";
+          + " characters allowed. Please set an appropriate directory using the system property "
+          + HBaseTestingUtility.BASE_TEST_DIRECTORY_KEY;
   private static HBaseTestingUtility utility;
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
