@@ -39,7 +39,7 @@ public class HBaseCacheStoreSessionListener implements CacheStoreSessionListener
   private transient IgniteLogger logger;
 
   /**
-   * Do not use. Exists only to provide a no-arg constructor for Ignite and factories.
+   * @deprecated Do not use. Exists only to provide a no-arg constructor for Ignite and factories.
    */
   @Deprecated
   public HBaseCacheStoreSessionListener() {

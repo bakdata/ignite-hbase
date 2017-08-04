@@ -57,7 +57,7 @@ public class HBaseCacheStore<K, V> implements CacheStore<K, V>, Serializable {
   private transient IgniteLogger logger;
 
   /**
-   * Do not use. Exists only to provide a no-arg constructor for Ignite and factories.
+   * @deprecated Do not use. Exists only to provide a no-arg constructor for Ignite and factories.
    */
   @Deprecated
   public HBaseCacheStore() {
@@ -128,10 +128,11 @@ public class HBaseCacheStore<K, V> implements CacheStore<K, V>, Serializable {
     values.forEach(clo::apply);
   }
 
+
   @Deprecated
   @Override
-  public void sessionEnd(boolean commit) throws CacheWriterException {
-    /* No-op */
+  public void sessionEnd(boolean commit) {
+  /* No-op */
   }
 
   /**
