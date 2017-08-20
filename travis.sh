@@ -76,13 +76,18 @@ project_key="$base_project_key:$TRAVIS_BRANCH"
 # Now check if sonarcloud knows a project with the given key (may need to be extended for private repos)
 code=$(curl -o /dev/null --silent --head --write-out '%{http_code}\n' \
   https://sonarcloud.io/api/project_analyses/search?project=$project_key)
-  
+
+# Some debug output
+echo "HTTP response code $code for project key $project_key"
+echo "Is pull request? $TRAVIS_PULL_REQUEST"
+if [[ -n "${GITHUB_TOKEN:-}" ]]; then echo "Has github token"; else echo "No github token"; fi
+
 if [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo 'Build release branch'
 
   mvn $MAVEN_ARGS deploy
 
-elif [[ code == 404 ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Sonarcloud project with key $project_key not found. Skipping analysis. 
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
@@ -95,8 +100,8 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   # for issue auto-assignment
   # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
   # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
-  # For this reason errors are ignored with "|| true"
-  git fetch --unshallow || true
+  # For this reason errors are ignored
+  git fetch --unshallow 2> /dev/null || true
 
   incremental=$([ "$TRAVIS_BUILD_NUMBER" == *0 ] && echo "true" || echo "false")
   mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
@@ -106,9 +111,9 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.projectVersion=$INITIAL_VERSION \
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH \
-    $MAVEN_ARGS
+    install
 
-elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [[ code != 404 ]]; then
+elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
 
   mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
@@ -122,8 +127,8 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [[ c
     -Dsonar.branch=$TRAVIS_BRANCH \
     install
 else
-  echo 'Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis. 
-  If you want to perform an analysis on that branch please add a corresponding sonarcloud project.'
+  echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis. 
+  If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS install
 fi
