@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nonnull;
 import javax.cache.Cache.Entry;
 import javax.cache.CacheException;
 import javax.cache.integration.CacheLoaderException;
@@ -123,7 +124,7 @@ public class HBaseCacheStore<K, V> implements CacheStore<K, V>, Serializable {
    */
   @Override
   public void loadCache(IgniteBiInClosure<K, V> clo, Object... args) throws CacheLoaderException {
-    Scan scan = createScan(args);
+    Scan scan = null;//createScan(args);
     Map<K, V> values = scan(scan);
     values.forEach(clo::apply);
   }
@@ -254,7 +255,7 @@ public class HBaseCacheStore<K, V> implements CacheStore<K, V>, Serializable {
     return scan;
   }
 
-  private Map<K, V> scan(Scan scan) {
+  private Map<K, V> scan(@Nonnull Scan scan) {
     try (ResultScanner scanner = table().getScanner(scan)) {
       return resultsToMap(scanner);
     } catch (IOException | IllegalStateException e) {
