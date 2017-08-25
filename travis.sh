@@ -102,7 +102,7 @@ elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Result was $r"
   echo "Resultvar was $resultvar"
 
-  resultvar=`expr $resultvar + $r`
+  resultvar=$(($resultvar + $r))
   echo "Resultvar was $resultvar"
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
