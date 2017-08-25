@@ -100,8 +100,10 @@ elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   r=$?
 
   echo "Result was $r"
+  echo "Resultvar was $resultvar"
 
   resultvar=`expr $resultvar + $r`
+  echo "Resultvar was $resultvar"
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
