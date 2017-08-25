@@ -30,11 +30,6 @@ set -euo pipefail
 #
 result=0
 
-function updateResult {
-  result=`expr $result + $?`
-  echo "Updated result"
-}
-
 function fixBuildVersion {
   export INITIAL_VERSION=$(mvn -q \
     -Dexec.executable="echo" \
@@ -94,15 +89,15 @@ if [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]
 
   mvn $MAVEN_ARGS clean deploy
 
-  updateResult
+  result=`expr $result + $?`
 
 elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  echo "Sonarcloud project with key $project_key not found. Skipping analysis. 
+  echo "Sonarcloud project with key $project_key not found. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS clean install
 
-  updateResult
+  result=`expr $result + $?`
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
@@ -124,11 +119,11 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  updateResult
+  result=`expr $result + $?`
 
   mvn $MAVEN_ARGS install
 
-  updateResult
+  result=`expr $result + $?`
 
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
@@ -143,18 +138,18 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  updateResult
+  result=`expr $result + $?`
 
   mvn $MAVEN_ARGS install
 
-  updateResult
+  result=`expr $result + $?`
 else
-  echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis. 
+  echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS clean install
 
-  updateResult
+  result=`expr $result + $?`
 fi
 
 exit $result
