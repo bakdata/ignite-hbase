@@ -32,6 +32,7 @@ result=0
 
 function updateResult {
   result=`expr $result + $?`
+  echo "Updated result"
 }
 
 function fixBuildVersion {
