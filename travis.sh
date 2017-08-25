@@ -97,8 +97,6 @@ elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   mvn $MAVEN_ARGS clean install
 
-  result=`expr $result + $?`
-
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
 
@@ -151,5 +149,3 @@ else
 
   result=`expr $result + $?`
 fi
-
-exit $result
