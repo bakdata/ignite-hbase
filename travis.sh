@@ -28,7 +28,7 @@ set -euo pipefail
 # BUILD_VERSION=6.3.0.12345
 # PROJECT_VERSION=6.3
 #
-result=0
+resultvar=0
 
 function fixBuildVersion {
   export INITIAL_VERSION=$(mvn -q \
@@ -89,13 +89,15 @@ if [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]
 
   mvn $MAVEN_ARGS clean deploy
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 
 elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Sonarcloud project with key $project_key not found. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS clean install
+
+  resultvar=`expr $resultvar + $?`
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
@@ -117,11 +119,11 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 
   mvn $MAVEN_ARGS install
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
@@ -136,16 +138,18 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 
   mvn $MAVEN_ARGS install
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 else
   echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS clean install
 
-  result=`expr $result + $?`
+  resultvar=`expr $resultvar + $?`
 fi
+
+exit $resultvar
