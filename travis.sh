@@ -28,7 +28,11 @@ set -euo pipefail
 # BUILD_VERSION=6.3.0.12345
 # PROJECT_VERSION=6.3
 #
-resultvar=0
+result=0
+
+function updateResult {
+  result=$(($result + $?))
+}
 
 function fixBuildVersion {
   export INITIAL_VERSION=$(mvn -q \
@@ -89,7 +93,7 @@ if [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]
 
   mvn $MAVEN_ARGS clean deploy
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 
 elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Sonarcloud project with key $project_key not found. Skipping analysis.
@@ -97,13 +101,7 @@ elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   mvn $MAVEN_ARGS clean install
 
-  r=$?
-
-  echo "Result was $r"
-  echo "Resultvar was $resultvar"
-
-  resultvar=$(($resultvar + $r))
-  echo "Resultvar was $resultvar"
+  updateResult
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
@@ -125,11 +123,11 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 
   mvn $MAVEN_ARGS install
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
@@ -144,18 +142,18 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 
   mvn $MAVEN_ARGS install
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 else
   echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
   mvn $MAVEN_ARGS clean install
 
-  resultvar=`expr $resultvar + $?`
+  updateResult
 fi
 
-exit $resultvar
+exit $result
