@@ -2,6 +2,9 @@ package com.bakdata.commons.serialization;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Type-specific {@link Serializer} for {@link Long}
+ */
 public enum LongSerializer implements Serializer<Long> {
 
   INSTANCE;

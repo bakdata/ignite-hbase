@@ -1,5 +1,8 @@
 package com.bakdata.commons.serialization;
 
+/**
+ * Type-specific {@link Serializer} for {@link String}
+ */
 public enum StringSerializer implements Serializer<String> {
 
   INSTANCE;

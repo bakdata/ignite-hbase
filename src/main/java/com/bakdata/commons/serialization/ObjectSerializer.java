@@ -8,6 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 
+/**
+ * {@link Serializer} using Java object serialization
+ */
 public enum ObjectSerializer implements Serializer<Object> {
 
   INSTANCE;

@@ -12,6 +12,9 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides utility methods for working with the HBase API
+ */
 public final class HBaseUtil {
 
   private static final Logger log = LoggerFactory.getLogger(HBaseUtil.class);

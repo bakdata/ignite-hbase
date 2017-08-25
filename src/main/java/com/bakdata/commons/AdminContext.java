@@ -52,7 +52,8 @@ class AdminContext {
       admin.addColumn(table, family);
     } catch (InvalidFamilyOperationException e) {
       if (!hasFamily(family, table)) {
-        //Schroedinger's cat: InvalidFamilyOperationException (cf exists) but does not exist at the same time
+        //Schroedinger's cat:
+        // InvalidFamilyOperationException (cf exists) but does not exist at the same time
         throw new IllegalStateException("Column family should exist but does not", e);
       }
       //columnFamily was created in the meantime

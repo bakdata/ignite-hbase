@@ -11,7 +11,7 @@ public interface StatusProvider {
   /**
    * Check whether the operation was successful
    *
-   * @return success
+   * @return boolean value indicating that the operation was successful or not
    * @throws IOException if an error occurs retrieving the status
    */
   boolean success() throws IOException;
