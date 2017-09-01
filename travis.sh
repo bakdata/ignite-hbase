@@ -115,7 +115,11 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   incremental=$([ "$TRAVIS_BUILD_NUMBER" == *0 ] && echo "true" || echo "false")
 
-  mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
+  mvn $MAVEN_ARGS clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+  updateResult
+
+  mvn $MAVEN_ARGS compile \
     sonar:sonar \
     -Dsonar.incremental=$incremental \
     -Dsonar.login=$SONAR_TOKEN \
@@ -125,14 +129,14 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   updateResult
 
-  mvn $MAVEN_ARGS install
-
-  updateResult
-
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
 
-  mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
+  mvn $MAVEN_ARGS clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+  updateResult
+
+  mvn $MAVEN_ARGS compile \
     sonar:sonar \
     -Dsonar.analysis.mode=preview \
     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
@@ -144,9 +148,6 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
 
   updateResult
 
-  mvn $MAVEN_ARGS install
-
-  updateResult
 else
   echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
