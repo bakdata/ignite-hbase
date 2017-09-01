@@ -126,6 +126,8 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.projectVersion=$INITIAL_VERSION \
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH \
+    -Dsonar.junit.reportPaths=target/surefire-reports \
+    -Dsonar.java.coveragePlugin=jacoco \
     -Dsonar.jacoco.reportPaths=target/jacoco.exec
 
   updateResult
@@ -146,6 +148,8 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.login=$SONAR_TOKEN \
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH \
+    -Dsonar.junit.reportPaths=target/surefire-reports \
+    -Dsonar.java.coveragePlugin=jacoco \
     -Dsonar.jacoco.reportPaths=target/jacoco.exec
 
   updateResult
