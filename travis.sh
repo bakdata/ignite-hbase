@@ -28,6 +28,12 @@ set -euo pipefail
 # BUILD_VERSION=6.3.0.12345
 # PROJECT_VERSION=6.3
 #
+result=0
+
+function updateResult {
+  result=$(($result + $?))
+}
+
 function fixBuildVersion {
   export INITIAL_VERSION=$(mvn -q \
     -Dexec.executable="echo" \
@@ -85,13 +91,17 @@ if [[ -n "${GITHUB_TOKEN:-}" ]]; then echo "Has github token"; else echo "No git
 if [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo 'Build release branch'
 
-  mvn $MAVEN_ARGS deploy
+  mvn $MAVEN_ARGS clean deploy
+
+  updateResult
 
 elif [ "$code" == 404 ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-  echo "Sonarcloud project with key $project_key not found. Skipping analysis. 
+  echo "Sonarcloud project with key $project_key not found. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
-  mvn $MAVEN_ARGS install 
+  mvn $MAVEN_ARGS clean install
+
+  updateResult
 
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo "Build and analyze ${TRAVIS_BRANCH}"
@@ -104,19 +114,32 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   git fetch --unshallow 2> /dev/null || true
 
   incremental=$([ "$TRAVIS_BUILD_NUMBER" == *0 ] && echo "true" || echo "false")
-  mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
+
+  mvn $MAVEN_ARGS clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+  updateResult
+
+  mvn $MAVEN_ARGS compile \
     sonar:sonar \
     -Dsonar.incremental=$incremental \
     -Dsonar.login=$SONAR_TOKEN \
     -Dsonar.projectVersion=$INITIAL_VERSION \
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH \
-    install
+    -Dsonar.junit.reportPaths=target/surefire-reports \
+    -Dsonar.java.coveragePlugin=jacoco \
+    -Dsonar.jacoco.reportPaths=target/jacoco.exec
+
+  updateResult
 
 elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$code" != 404 ]; then
   echo 'Build and analyze internal pull request'
 
-  mvn $MAVEN_ARGS clean compile org.jacoco:jacoco-maven-plugin:prepare-agent \
+  mvn $MAVEN_ARGS clean org.jacoco:jacoco-maven-plugin:prepare-agent install
+
+  updateResult
+
+  mvn $MAVEN_ARGS compile \
     sonar:sonar \
     -Dsonar.analysis.mode=preview \
     -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
@@ -125,10 +148,19 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.login=$SONAR_TOKEN \
     -Dsonar.projectKey=$base_project_key \
     -Dsonar.branch=$TRAVIS_BRANCH \
-    install
+    -Dsonar.junit.reportPaths=target/surefire-reports \
+    -Dsonar.java.coveragePlugin=jacoco \
+    -Dsonar.jacoco.reportPaths=target/jacoco.exec
+
+  updateResult
+
 else
-  echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis. 
+  echo "Build external pull request or pull request on branch with unknown key $project_key. Skipping analysis.
   If you want to perform an analysis on that branch please add a corresponding sonarcloud project."
 
-  mvn $MAVEN_ARGS install
+  mvn $MAVEN_ARGS clean install
+
+  updateResult
 fi
+
+exit $result
