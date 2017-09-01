@@ -125,7 +125,8 @@ elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     -Dsonar.login=$SONAR_TOKEN \
     -Dsonar.projectVersion=$INITIAL_VERSION \
     -Dsonar.projectKey=$base_project_key \
-    -Dsonar.branch=$TRAVIS_BRANCH
+    -Dsonar.branch=$TRAVIS_BRANCH \
+    -Dsonar.jacoco.reportPaths=target/jacoco.exec
 
   updateResult
 
@@ -144,7 +145,8 @@ elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ] && [ "$
     -Dsonar.github.oauth=$GITHUB_TOKEN \
     -Dsonar.login=$SONAR_TOKEN \
     -Dsonar.projectKey=$base_project_key \
-    -Dsonar.branch=$TRAVIS_BRANCH
+    -Dsonar.branch=$TRAVIS_BRANCH \
+    -Dsonar.jacoco.reportPaths=target/jacoco.exec
 
   updateResult
 
